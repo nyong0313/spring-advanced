@@ -38,25 +38,14 @@ public class CommentService {
 
         Comment savedComment = commentRepository.save(newComment);
 
-        return new CommentSaveResponse(
-                savedComment.getId(),
-                savedComment.getContents(),
-                new UserResponse(user.getId(), user.getEmail())
-        );
+        return CommentSaveResponse.of(savedComment, UserResponse.of(user));
     }
 
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(long todoId) {
         return commentRepository.findByTodoIdWithUser(todoId)
                 .stream()
-                .map(comment -> {
-                    User user = comment.getUser();
-                    return new CommentResponse(
-                            comment.getId(),
-                            comment.getContents(),
-                            new UserResponse(user.getId(), user.getEmail())
-                    );
-                })
+                .map(CommentResponse::of)
                 .toList();
     }
 }
